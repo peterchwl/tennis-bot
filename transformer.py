@@ -9,7 +9,21 @@ class transformer:
         csvname = xlsx_file[:-4] + "csv"
         global dynamic_path
         dynamic_path = os.path.dirname(os.path.abspath(__file__))
+    
+    # def closefile(self):
+    #     self.xlsx_file.close()
         
+    def getdata(self):
+        pd.set_option("display.max_rows", None)
+        return self.xlsx_file
+    
+    def setfile(self, xlsx_file):
+        self.xlsx_file = pd.read_excel(xlsx_file)
+        global csvname
+        csvname = xlsx_file[:-4] + "csv"
+        global dynamic_path
+        dynamic_path = os.path.dirname(os.path.abspath(__file__))
+    
     def updatecsv(self):
         self.xlsx_file.to_csv(f"{dynamic_path}\{csvname}", index=None, header=True)
     
@@ -45,11 +59,16 @@ class transformer:
                 
         pandascsv.set_index("ID", inplace=True)
         pandascsv.to_csv(csv_file)
-        
+    
+    def getCsvName(self):
+        return csvname
         
         
         
     
-test = transformer("Tennis Roster Excel.xlsx")
-test.updatecsv()
-test.formatcsv()
+# test = transformer("CV Tennis Roster.xlsx")
+# test.updatecsv()
+# test.formatcsv()
+# print(test.getdata())
+# test.setfile("testing.xlsx")
+# print(test.getdata())
