@@ -11,23 +11,27 @@ import logging.handlers
 from datetime import datetime
 import data
 import transformer
-# import auth_handler
+# import gettoken as tk
+import secrets
 
 load_dotenv()
 token = os.getenv("TOKEN")
 guildid = os.getenv("GUILDID")
+guildid = int(guildid)
 
 intents = discord.Intents.default()
 intents.members = True
 bot = Bot(command_prefix=".", intents=intents)
 
-transformer = transformer.transformer("Tennis Roster Excel.xlsx")
-data = data.data("Tennis Roster CSV.csv")
+transformer = transformer.transformer("CV_Tennis_Roster.xlsx")
+data = data.data("CV_Tennis_Roster.csv")
 
 lockout = {}
 
 @bot.event
 async def on_ready():
+    global token_list
+    token_list = []
     list_guild_no_cmd = list(filter(lambda guild: 'cmd' not in [name.name for name in guild.text_channels], bot.guilds))
     if list_guild_no_cmd:
         for guild in list_guild_no_cmd:
@@ -43,8 +47,9 @@ async def on_ready():
 To recieve a token, please type in 'token' to recieve a special token''')
             await cmd_channel.send("")
         
-    global guildobject 
-    guildobject = await bot.fetch_guild(guildid)
+    global guildobject
+    guildlist = list(filter(lambda guildlist: guildlist.id == guildid, bot.guilds))
+    guildobject = guildlist[0]
     print("Bot is ready.")
     #Log: Bot is ready
 
@@ -58,7 +63,7 @@ async def on_member_join(member):
     except Exception as e:
         await ctx.send("Cannot assign role. Error: " + str(e))
         #Log: Cannot assign role
-    await member.send('''For access to the CVHS Tennis Discord Server, please enter your **SCHOOL ID**, **LAST NAME**, **FIRST NAME**, and **ROLE**
+    await member.send('''For access to the CVHS Tennis Discord Server, please enter your **SCHOOL ID**, **FIRST NAME**, **LAST NAME**, and **ROLE**
 
 For **ROLE**:
 VB = Varsity Boys
@@ -66,7 +71,7 @@ VG = Varsity Girls
 JVB = JV Boys
 JVG = JV Girls
 
-(ex: "123456 Lee Peter VB")
+(ex: "123456, Peter, Lee, VB")
 ------------------------------------------------------------------------
 ***If you are an Alumni, please message Coach Doil (Liod#4439) for a token.
 Copy and paste the token here for access into the server.***''')
@@ -74,27 +79,126 @@ Copy and paste the token here for access into the server.***''')
 @bot.event
 async def on_member_remove(member):
     print(f"{member} has left a server.")
-    # Make these commands later on in the future
-    # if data.discord_id_exists(str(member.id)):
-    #     data.remove_discord_id(member.id)
+    if data.discordidexists(str(member.id)):
+        data.removeInServer(member.id)
+        data.removediscordid(member.id)
 
 @bot.event
 async def on_message(message):
-    message_words = message.content.lower().strip().split(" ")
-    print(message_words)
+    if message.author == bot.user:
+        return
+    if message.author.bot:
+        return
+    # message_words = message.content.lower().strip().split(" ")
     if str(message.channel.type) == "private":
-        pass
-        #Check if user is already in the server
+        message_words = message.content.lower().split(",")
+        for i in range(len(message_words)):
+            message_words[i] = message_words[i].strip()
+        if len(message_words) == 4:
+            try:
+                message_words[1], message_words[2] = message_words[2], message_words[1]
+                message_words[1] = message_words[1].capitalize()
+                message_words[2] = message_words[2].capitalize()
+                message_words[3] = message_words[3].upper()
+                message_words[0] = int(message_words[0])
+                if bool(data.isInServer(message_words[0])):
+                    await message.channel.send("You are already in the server!")
+                else:
+                    if data.auth(message_words):
+                        data.adddiscordid(message_words[0], message.author.id)
+                        data.addToServer(message_words[0])
+                        if message_words[3] == "VB":
+                            role = "Varsity Boys"
+                        elif message_words[3] == "VG":
+                            role = "Varsity Girls"
+                        elif message_words[3] == "JVB":
+                            role = "JV Boys"
+                        elif message_words[3] == "JVG":
+                            role = "JV Girls"
+                        try:
+                            member = guildobject.get_member(message.author.id)
+                            await member.add_roles(discord.utils.get(member.guild.roles, name=role))
+                            await member.remove_roles(discord.utils.get(member.guild.roles, name="Guest"))
+                            await message.channel.send(f"Congradulations {message.author.mention}, you're now in the CV Tennis Discord Server!")
+                            tempnick = message_words[2] + " " + message_words[1]
+                            await member.edit(nick=tempnick)
+                        except Exception as e:
+                            print("Cannot assign role. Error: " + str(e))    
+                    else:
+                        await message.channel.send("Student not found. Check for typos and commas and try again.")
+            except Exception as e:
+                print("Error: " + str(e))
+                await message.channel.send("Student not found. Check for typos and commas and try again.")
+        elif len(message_words) == 1:
+            if message.content in token_list:
+                try:
+                    for i in range(len(token_list)):
+                        if token_list[i] == message.content:
+                            token_list.pop(i)
+                    member = guildobject.get_member(message.author.id)
+                    await member.add_roles(discord.utils.get(member.guild.roles, name="Alumni"))
+                    await member.remove_roles(discord.utils.get(member.guild.roles, name="Guest"))
+                    await message.channel.send(f"Congradulations {message.author.mention}, you're now in the CV Tennis Discord Server!")
+                except Exception as e:
+                    print("Cannot assign role. Error: " + str(e))
+            else:
+                await message.channel.send("Token not found. Check for typos and try again.")
+            
         #Check and update blacklist
-        #Auth method
-            #IN AUTH: inServer = True && add DiscordID
-    if message.channel.name == "cmd":
-        await bot.process_commands(message)
+        else:
+            await message.channel.send("Student not found. Check for typos and commas and try again.")
+    else:        
+        if message.channel.name == "cmd":
+            if len(message.attachments) == 1 and message.attachments[0].filename == "CV_Tennis_Roster.xlsx":
+                await message.attachments[0].save(message.attachments[0].filename)
+                transformer.setfile(message.attachments[0].filename)
+                transformer.updatecsv()
+                transformer.formatcsv()
+                data.setdata(transformer.getCsvName())
+            await bot.process_commands(message)
 
+
+
+@bot.command()
+async def gettoken(ctx):
+    temp = secrets.token_hex(4)
+    token_list.append(temp)
+    await ctx.send(temp)
     
 @bot.command()
-async def updateroster(ctx, message):
-    
+async def resetallroles(ctx):
+    for member in ctx.guild.members:
+        for i in member.roles:
+            if i.name == "Alumni" or i.name == "Coach":
+                pass
+            else:
+                try:
+                    await member.remove_roles(discord.utils.get(member.guild.roles, name=str(i)))
+                    await member.add_roles(discord.utils.get(ctx.guild.roles, name='Guest'))
+                except:
+                    pass
+        # if "Alumni" in (i.name for i in member.roles) or "Coach" in (i.name for i in member.roles):
+        #       pass
+        # else:
+        #     await member.send("Yo")
+                    
+                    
+# @client.command(pass_context=True)
+# async def dm(ctx):
+#     user=await client.get_user_info("User's ID here")
+#     await client.send_message(user, "Your message goes here")
+    # This works ^
+
+
+
+
+
+
+
+
+
+
+
 
 
     
