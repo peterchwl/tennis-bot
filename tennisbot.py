@@ -234,6 +234,7 @@ async def getblacklist(ctx):
         else:
             embed.add_field(name="#"+str(count)+")", value='None', inline=False)
         count += 1
+    embed.set_footer(text=str(datetime.now().strftime("Date: %b %d, %Y  Time: %I:%M %p")))
     await ctx.send(embed=embed)
 
 @bot.command()
@@ -243,6 +244,7 @@ async def removeblacklist(ctx,*,number):
         blacklisttxt = open("blacklist.txt", "r")
         blacklist = blacklisttxt.read().split(" ")
         blacklisttxt.close()
+        removed = blacklist[number-1]
         blacklist.pop(number-1)
         newlist = ""
         for i in blacklist:
@@ -251,6 +253,7 @@ async def removeblacklist(ctx,*,number):
         blacklisttxt2 = open("blacklist.txt", "w")
         blacklisttxt2.write(newlist)
         blacklisttxt2.close()
+        await ctx.send("<@"+str(removed)+"> removed from blacklist!")
     except:
         pass
 
