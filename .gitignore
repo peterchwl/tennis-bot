@@ -2,3 +2,4 @@
 *.xlsx
 *.env
 __pycache__
+*.txt
