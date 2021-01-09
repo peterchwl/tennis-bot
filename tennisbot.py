@@ -55,6 +55,7 @@ To recieve a token, please type in 'token' to recieve a special token''')
     global guildobject
     guildlist = list(filter(lambda guildlist: guildlist.id == guildid, bot.guilds))
     guildobject = guildlist[0]
+    
     print("Bot is ready.")
     #Log: Bot is ready
 
@@ -68,18 +69,13 @@ async def on_member_join(member):
     except Exception as e:
         await ctx.send("Cannot assign role. Error: " + str(e))
         #Log: Cannot assign role
-    await member.send('''For access to the CVHS Tennis Discord Server, please enter your **SCHOOL ID**, **FIRST NAME**, **LAST NAME**, and **ROLE**
+    await member.send('''------------------------------------------------------------------------
+For access to the CVHS Tennis Discord Server, please enter your **SCHOOL ID**
 
-For **ROLE**:
-VB = Varsity Boys
-VG = Varsity Girls
-JVB = JV Boys
-JVG = JV Girls
-
-(ex: "123456, Peter, Lee, VB")
+(ex: "123456")
 ------------------------------------------------------------------------
-***If you are an Alumni, please message Coach Doil (Liod#4439) for a token.
-Copy and paste the token here for access into the server.***''')
+If you are an **Alumni**, please message **Coach Doil (Liod#4439)** for a token.
+Copy and paste the token here for access into the server.''')
     
 @bot.event
 async def on_member_remove(member):
@@ -111,36 +107,32 @@ Please message Coach Doil (Liod#4439) to unlock.''')
                     blacklisttxt.close()
             else:
                 lockout[message.author.id] = 0
-            message_words = message.content.lower().split(",")
-            for i in range(len(message_words)):
-                message_words[i] = message_words[i].strip()
-            if len(message_words) == 4:
+                
+            msg = message.content.strip()
+            if len(msg) == 6:
                 try:
-                    message_words[1], message_words[2] = message_words[2], message_words[1]
-                    message_words[1] = message_words[1].capitalize()
-                    message_words[2] = message_words[2].capitalize()
-                    message_words[3] = message_words[3].upper()
-                    message_words[0] = int(message_words[0])
-                    if bool(data.isInServer(message_words[0])):
+                    msg = int(msg)
+                    if bool(data.isInServer(msg)):
                         await message.channel.send("You are already in the server!")
                     else:
-                        if data.auth(message_words):
-                            data.adddiscordid(message_words[0], message.author.id)
-                            data.addToServer(message_words[0])
-                            if message_words[3] == "VB":
+                        if data.auth(msg):
+                            data.addDiscordId(msg, message.author.id)
+                            data.addToServer(msg)
+                            stuarr = data.getStuArray(msg)
+                            if stuarr[2] == "VB":
                                 role = "Varsity Boys"
-                            elif message_words[3] == "VG":
+                            elif stuarr[2] == "VG":
                                 role = "Varsity Girls"
-                            elif message_words[3] == "JVB":
+                            elif stuarr[2] == "JVB":
                                 role = "JV Boys"
-                            elif message_words[3] == "JVG":
+                            elif stuarr[2] == "JVG":
                                 role = "JV Girls"
                             try:
                                 member = guildobject.get_member(message.author.id)
                                 await member.add_roles(discord.utils.get(member.guild.roles, name=role))
                                 await member.remove_roles(discord.utils.get(member.guild.roles, name="Guest"))
                                 await message.channel.send(f"Congratulations {message.author.mention}, you're now in the CV Tennis Discord Server!")
-                                tempnick = message_words[2] + " " + message_words[1]
+                                tempnick = data.getFullName(msg)
                                 await member.edit(nick=tempnick)
                             except Exception as e:
                                 print("Cannot assign role. Error: " + str(e))    
@@ -151,7 +143,7 @@ Please message Coach Doil (Liod#4439) to unlock.''')
                     print("Error: " + str(e))
                     await message.channel.send("Student not found. Check for typos and commas and try again.")
                     lockout[message.author.id] += 1
-            elif len(message_words) == 1:
+            elif len(msg) == 8:
                 if message.content in token_list:
                     try:
                         for i in range(len(token_list)):
@@ -179,6 +171,7 @@ Please message Coach Doil (Liod#4439) to unlock.''')
                 transformer.updatecsv()
                 transformer.formatcsv()
                 data.setdata(transformer.getCsvName())
+                await message.channel.send("Recieved New Roster!")
             await bot.process_commands(message)
 
 @bot.command()
@@ -192,28 +185,24 @@ async def resetallroles(ctx):
     for member in ctx.guild.members:
         flip = True
         for i in member.roles:
-            if i.name == "Alumni":
+            if i.name == "Alumni" or i.name == "Guest":
                 pass
             else:
                 try:
                     await member.remove_roles(discord.utils.get(member.guild.roles, name=str(i)))
                     await member.add_roles(discord.utils.get(ctx.guild.roles, name='Guest'))
                     if flip:
-                        await member.send('''For access to the CVHS Tennis Discord Server, please enter your **SCHOOL ID**, **FIRST NAME**, **LAST NAME**, and **ROLE**
+                        await member.send('''------------------------------------------------------------------------
+For access to the CVHS Tennis Discord Server, please enter your **SCHOOL ID**
 
-For **ROLE**:
-VB = Varsity Boys
-VG = Varsity Girls
-JVB = JV Boys
-JVG = JV Girls
-
-(ex: "123456, Peter, Lee, VB")
+(ex: "123456")
 ------------------------------------------------------------------------
-***If you are an Alumni, please message Coach Doil (Liod#4439) for a token.
-Copy and paste the token here for access into the server.***''')
+If you are an **Alumni**, please message **Coach Doil (Liod#4439)** for a token.
+Copy and paste the token here for access into the server.''')
                         flip = False
                 except:
                     pass
+    await ctx.send("Sucessfully reset roles!")
 
 @bot.command()
 async def getblacklist(ctx):
