@@ -22,36 +22,16 @@ class data:
     
     # def turnTrue(self, studentid):
     #     self.roster["inServer"][studentid] != "True"
+
+    def auth(self, message):
+        return message in self.roster.index
             
-    def auth(self, array):
-        temparray = array[:]
-        # try:
-        #     temparray[0] = int(temparray[0])
-        # except Exception as e:
-        #     print("User ID not an int: " + str(e))
-        if len(temparray) == 4 and temparray[0] in self.roster.index:
-            try:
-                studentinfo = self.roster.loc[temparray[0]].values.tolist()
-            except Exception as e:
-                print("Nonexisting StudentID: " + str(e))
-            studentinfo.pop()
-            studentinfo.pop()
-            temparray.pop(0)
-            studentinfo = [x.lower() for x in studentinfo]
-            temparray = [x.lower() for x in temparray]
-            if studentinfo == temparray:
-                return True
-            else:
-                return False
-        else:
-            return False
-    
-    def adddiscordid(self, studentid, author):
-        self.roster.at[int(studentid), "DiscordID"] = author
+    def addDiscordId(self, studentid, author):
+        self.roster.at[studentid, "DiscordID"] = author
         self.roster.to_csv(self.csv_file)
 
     def addToServer(self, studentid):
-        self.roster.at[int(studentid), "inServer"] = True
+        self.roster.at[studentid, "inServer"] = True
         self.roster.to_csv(self.csv_file)
         
     def discordidexists(self, author):
@@ -68,35 +48,10 @@ class data:
         self.roster.at[authorindex, "inServer"] = False
         self.roster.to_csv(self.csv_file)
         
-        # dfb = int(df[df['A']==5].index[0])
-        # dfbb = int(df[df['A']==8].index[0])
+    def getStuArray(self, studentid):
+        studentinfo = self.roster.loc[studentid].values.tolist()
+        return studentinfo
 
-        # self.roster.at[author, "inServer"] = False
-        # self.roster[]
-# transformer = transformer.transformer("CV_Tennis_Roster.xlsx")
-# transformer.updatecsv()
-# transformer.formatcsv()
-# data = data("CV_Tennis_Roster.csv")
-# print(data.getdata())
-# data.removeInServer(790687692752945194)
-# print(data.getdata())
-# data.adddiscordid(401488, 554442369831796740)
-# print(data.getdata())
-# # 
-# # # print(data.isInServer('401488'))
-# message = "402075, Valerie, Arrieta Hidalgo, JVG"
-# message_words = message.lower().split(",")
-# message_words[1], message_words[2] = message_words[2].capitalize(), message_words[1].capitalize()
-# message_words[3] = message_words[3].upper()
-# for i in range(len(message_words)):
-#     message_words[i] = message_words[i].strip()
-# print(message_words)
-# 
-# print(data.auth(message_words))
-            
-            
-            
-            
-            
-            
-            
+    def getFullName(self, studentid):
+        studentinfo = self.roster.loc[studentid].values.tolist()
+        return studentinfo[1] + " " + studentinfo[0]
