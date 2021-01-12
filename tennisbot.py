@@ -11,7 +11,6 @@ import logging.handlers
 from datetime import datetime
 import data
 import transformer
-# import gettoken as tk
 import secrets
 
 load_dotenv()
@@ -172,6 +171,27 @@ Please message Coach Doil (Liod#4439) to unlock.''')
                 transformer.formatcsv()
                 data.setdata(transformer.getCsvName())
                 await message.channel.send("Recieved New Roster!")
+                for member in guildobject.members:
+                    flip = True
+                    for i in member.roles:
+                        if i.name == "Alumni" or i.name == "Guest":
+                            pass
+                        else:
+                            try:
+                                await member.remove_roles(discord.utils.get(member.guild.roles, name=str(i)))
+                                await member.add_roles(discord.utils.get(guildobject.roles, name="Guest"))
+                                if flip:
+                                    await member.send('''------------------------------------------------------------------------
+For access to the CVHS Tennis Discord Server, please enter your **SCHOOL ID**
+
+(ex: "123456")
+------------------------------------------------------------------------
+If you are an **Alumni**, please message **Coach Doil (Liod#4439)** for a token.
+Copy and paste the token here for access into the server.''')
+                                    flip = False
+                            except:
+                                pass
+                await message.channel.send("Sucessfully reset roles!")
             await bot.process_commands(message)
 
 @bot.command()
@@ -179,30 +199,6 @@ async def gettoken(ctx):
     temp = secrets.token_hex(4)
     token_list.append(temp)
     await ctx.send(temp)
-    
-@bot.command()
-async def resetallroles(ctx):
-    for member in ctx.guild.members:
-        flip = True
-        for i in member.roles:
-            if i.name == "Alumni" or i.name == "Guest":
-                pass
-            else:
-                try:
-                    await member.remove_roles(discord.utils.get(member.guild.roles, name=str(i)))
-                    await member.add_roles(discord.utils.get(ctx.guild.roles, name='Guest'))
-                    if flip:
-                        await member.send('''------------------------------------------------------------------------
-For access to the CVHS Tennis Discord Server, please enter your **SCHOOL ID**
-
-(ex: "123456")
-------------------------------------------------------------------------
-If you are an **Alumni**, please message **Coach Doil (Liod#4439)** for a token.
-Copy and paste the token here for access into the server.''')
-                        flip = False
-                except:
-                    pass
-    await ctx.send("Sucessfully reset roles!")
 
 @bot.command()
 async def getblacklist(ctx):
