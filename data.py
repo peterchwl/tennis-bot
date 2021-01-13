@@ -19,9 +19,6 @@ class data:
     def isInServer(self, studentid):
         studentinfo = self.roster.loc[studentid].values.tolist()
         return str(studentinfo[len(studentinfo)-1]) == "True"
-    
-    # def turnTrue(self, studentid):
-    #     self.roster["inServer"][studentid] != "True"
 
     def auth(self, message):
         return message in self.roster.index
