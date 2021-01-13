@@ -1,4 +1,8 @@
 import pandas as pd
+import logging
+
+# logging
+logger = logging.getLogger(__name__)
 
 class data:
     def __init__(self, csv_file):
