@@ -12,9 +12,14 @@ from datetime import datetime
 import data
 import transformer
 import secrets
+import logs
+
+# logging
+logger = logging.getLogger("tennislog")
 
 load_dotenv()
 token = os.getenv("TOKEN")
+
 guildid = os.getenv("GUILDID")
 guildid = int(guildid)
 
@@ -53,10 +58,14 @@ To recieve a token, please type in 'token' to recieve a special token''')
         
     global guildobject
     guildlist = list(filter(lambda guildlist: guildlist.id == guildid, bot.guilds))
-    guildobject = guildlist[0]
+    
+    # try:
+    #     guildobject = guildlist[0]
+    # except:
     
     print("Bot is ready.")
     #Log: Bot is ready
+    logger.info("Bot is ready to go")
 
 @bot.event
 async def on_member_join(member):
@@ -241,5 +250,11 @@ async def removeblacklist(ctx,*,number):
         await ctx.send("<@"+str(removed)+"> removed from blacklist!")
     except:
         pass
+
+if __name__ == '__main__':
+    logger_names = ['transformer','data','tennislog']
+    
+    for logger_name in logger_names:
+        logs.setUpLogger(logger_name)
 
 bot.run(token)
