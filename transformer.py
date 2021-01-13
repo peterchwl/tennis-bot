@@ -1,10 +1,12 @@
 import pandas as pd
 import os.path
+import logging
 
+logger = logging.getLogger(__name__)
 
 class transformer:
     def __init__(self, xlsx_file):
-        self.xlsx_file = pd.read_excel(xlsx_file)
+        self.xlsx_file = pd.read_excel(xlsx_file, engine='openpyxl')
         global csvname
         csvname = xlsx_file[:-4] + "csv"
         global dynamic_path
