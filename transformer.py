@@ -9,9 +9,6 @@ class transformer:
         csvname = xlsx_file[:-4] + "csv"
         global dynamic_path
         dynamic_path = os.path.dirname(os.path.abspath(__file__))
-    
-    # def closefile(self):
-    #     self.xlsx_file.close()
         
     def getdata(self):
         pd.set_option("display.max_rows", None)
@@ -62,13 +59,3 @@ class transformer:
     
     def getCsvName(self):
         return csvname
-        
-        
-        
-    
-# test = transformer("CV Tennis Roster.xlsx")
-# test.updatecsv()
-# test.formatcsv()
-# print(test.getdata())
-# test.setfile("testing.xlsx")
-# print(test.getdata())
