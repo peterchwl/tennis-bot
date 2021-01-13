@@ -59,9 +59,9 @@ To recieve a token, please type in 'token' to recieve a special token''')
         
     global guildobject
     guildlist = list(filter(lambda guildlist: guildlist.id == guildid, bot.guilds))
+    guildobject = guildlist[0]
     
-    print("Bot is ready.")
-    logger.info("Bot is ready to go")
+    logger.info("Bot is ready to go.")
 
 @bot.event
 async def on_member_join(member):
@@ -99,11 +99,10 @@ async def on_message(message):
         blacklist = blacklisttxt.read().split(" ")
         blacklisttxt.close()
         if str(message.author.id) in blacklist:
-            logger.info(f"{str(message.author.id)} tried to \
-            get in the server but was already blacklisted so \
-            this person was blocked")
+            logger.info(f"{str(message.author.id)} was blocked \
+by blacklist.")
             await message.channel.send('''You've been locked \
-            out for too many failed attempts.
+out for too many failed attempts.
 Please message Coach Doil (Liod#4439) to unlock.''')
             if message.author.id in lockout:
                 del lockout[message.author.id]
@@ -179,59 +178,59 @@ Please message Coach Doil (Liod#4439) to unlock.''')
             else:
                 await message.channel.send("Student not found. Check for typos and commas and try again.")
                 lockout[message.author.id] += 1
-                logger.error(f"{message.author} not found")
                     
     else:        
         if message.channel.name == "cmd":
             try:
-                if len(message.attachments) == 1 and message.attachments[0].filename == "CV_Tennis_Roster.xlsx":
-                    switch = False
-                    try:
-                        await message.attachments[0].save(message.attachments[0].filename)
-                        transformer.setfile(message.attachments[0].filename)
-                        transformer.updatecsv()
-                        transformer.formatcsv()
-                        data.setdata(transformer.getCsvName())
-                        switch = True
-                        await message.channel.send("Recieved New Roster!")
-                        logger.info("Updated new roster!")        
-                    except Exception as e:
-                        logger.critical("Could not update roster. Error: " + str(e))
-                    try:
-                        if switch:    
-                            for member in guildobject.members:
-                                flip = True
-                                for i in member.roles:
-                                    if i.name == "Alumni" or i.name == "Guest":
-                                        pass
-                                    else:
-                                        try:
-                                            await member.remove_roles(discord.utils.get(member.guild.roles, name=str(i)))
-                                            await member.add_roles(discord.utils.get(guildobject.roles, name="Guest"))
-                                            if flip:
-                                                await member.send('''------------------------------------------------------------------------
+                if len(message.attachments) == 1:
+                    if message.attachments[0].filename == "CV_Tennis_Roster.xlsx":
+                        switch = False
+                        try:
+                            await message.attachments[0].save(message.attachments[0].filename)
+                            transformer.setfile(message.attachments[0].filename)
+                            transformer.updatecsv()
+                            transformer.formatcsv()
+                            data.setdata(transformer.getCsvName())
+                            switch = True
+                            await message.channel.send("Recieved New Roster!")
+                            logger.info("Updated new roster!")        
+                        except Exception as e:
+                            logger.error("Could not update roster. Error: " + str(e))
+                        try:
+                            if switch:    
+                                for member in guildobject.members:
+                                    flip = True
+                                    for i in member.roles:
+                                        if i.name == "Alumni" or i.name == "Guest":
+                                            pass
+                                        else:
+                                            try:
+                                                await member.remove_roles(discord.utils.get(member.guild.roles, name=str(i)))
+                                                await member.add_roles(discord.utils.get(guildobject.roles, name="Guest"))
+                                                if flip:
+                                                    await member.send('''------------------------------------------------------------------------
 For access to the CVHS Tennis Discord Server, please enter your **SCHOOL ID**
 
 (ex: "123456")
 ------------------------------------------------------------------------
 If you are an **Alumni**, please message **Coach Doil (Liod#4439)** for a token.
 Copy and paste the token here for access into the server.''')
-                                                flip = False
-                                        except:
-                                            pass
-                            await message.channel.send("Sucessfully reset roles!")
-                            logger.info("Reset all roles!")        
-                        else:
-                            logger.info("Could not reset roles beacuse a roster is not detected.")        
-                    except Exception as e:
-                        logger.info("Could not reset roles. Error: " + str(e))                    
-                else:
-                    await message.channel.send("Roster not detected. Either the \
-                    attatchment you sent was invalid or the attatchment's name is\
-                     spelled incorrectly. The correct spelling for the file is 'CV_\
-                     Tennis_Roster.xlsx'")                   
+                                                    flip = False
+                                            except:
+                                                pass
+                                await message.channel.send("Sucessfully reset roles!")
+                                logger.info("Reset all roles!")        
+                            else:
+                                logger.info("Could not reset roles beacuse a roster is not detected.")        
+                        except Exception as e:
+                            logger.error("Could not reset roles. Error: " + str(e))                    
+                    else:
+                        await message.channel.send('''Roster not detected. Either the \
+attatchment you sent was invalid or the attatchment's name is \
+spelled incorrectly.
+The correct spelling for the file is "CV_Tennis_Roster.xlsx"''')                   
             except Exception as e:
-                logger.critical("Roster not found. Error: " + str(e))            
+                logger.error("Roster not found. Error: " + str(e))            
             await bot.process_commands(message)
 
 @bot.command()
@@ -280,11 +279,15 @@ async def removeblacklist(ctx,*,number):
         blacklisttxt2 = open("blacklist.txt", "w")
         blacklisttxt2.write(newlist)
         blacklisttxt2.close()
-        await ctx.send("<@"+str(removed)+"> removed from blacklist!")
-        logger.info(f"{removed.author} removed from blacklist!")
+        if removed != "":
+            await ctx.send("<@"+str(removed)+"> removed from blacklist!")
+            logger.info(f"{removed} removed from blacklist!")
+        else:
+            await ctx.send("Please select a valid user.")
+            logger.warning(f"Invalid user selected for blacklist removal.")
     except Exception as e:
         await ctx.send("Couldn't remove user from blacklist")
-        logger.critical("Couldn't remove user from blacklist. Error: " + str(e))
+        logger.error("Couldn't remove user from blacklist. Error: " + str(e))
 
 if __name__ == '__main__':
     logger_names = ['transformer','data','tennislog']
@@ -293,4 +296,4 @@ if __name__ == '__main__':
         logs.setUpLogger(logger_name)
 
 bot.run(token)
-logger.info('Bot has finished running and has ended all processes')
+logger.info('Bot has finished running and has ended all processes. \n')
