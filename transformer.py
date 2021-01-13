@@ -6,15 +6,23 @@ logger = logging.getLogger(__name__)
 
 class transformer:
     def __init__(self, xlsx_file):
-        self.xlsx_file = pd.read_excel(xlsx_file, engine='openpyxl')
-        global csvname
-        csvname = xlsx_file[:-4] + "csv"
-        global dynamic_path
-        dynamic_path = os.path.dirname(os.path.abspath(__file__))
+        try:
+            self.xlsx_file = pd.read_excel(xlsx_file, engine='openpyxl')
+            global csvname
+            csvname = xlsx_file[:-4] + "csv"
+            global dynamic_path
+            dynamic_path = os.path.dirname(os.path.abspath(__file__))
+        except Exception as e:
+            logger.critical("Could not read_excel and/or array positional \
+            error for xlsx_file[] and/or could not find the dynamic path \
+            object of which transformer.py is in" + str(e))
         
     def getdata(self):
-        pd.set_option("display.max_rows", None)
-        return self.xlsx_file
+        try:
+            pd.set_option("display.max_rows", None)
+            return self.xlsx_file
+        except Exception as e:
+            logger.critical("Cannot get data. Error: " + str(e))
     
     def setfile(self, xlsx_file):
         self.xlsx_file = pd.read_excel(xlsx_file)
