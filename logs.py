@@ -1,27 +1,42 @@
 import logging
+import pathlib
+import logging.handlers
+import datetime
 
-log_filename = f'logs/{datetime.now().strftime("%d-%m-%Y_%H-%M-%S")}.log'
-os.makedirs(os.path.dirname('/logs'), exist_ok=True)
-logging.basicConfig(filename=f'{dynamic_path}\logs\{datetime.now().strftime("%d-%m-%Y_%H-%M-%S")}.log', level=logging.INFO,
-                    format='%(asctime)s:%(levelname)s:%(message)s')
+def file_renamer(filename):
+    split = filename.split('.')
+    return ".".join(split[:-3] + [split[-1], split[-2]])
 
-# logger = logging.getLogger()
 
-# In your main program or programs, do e.g.:
+def setUpLogger(loggers):
+    logger = logging.getLogger(loggers)
+    logger.setLevel(logging.DEBUG)
+    
+    logs_dir = pathlib.Path('logs')
+    logs_dir.mkdir(exist_ok=True)
+    # Create a handler that records all activity
+    everything = logging.handlers.TimedRotatingFileHandler(logs_dir / f'tennisbot.{format(datetime.datetime.today(), "%Y-%m-%d")}.log',
+                                                           when='midnight', encoding='UTF-8')
+    # Do not use loggging.NOTSET, does not work for some reason
+    # use logging.DEBUG if you want the lowest level
+    everything.setLevel(logging.DEBUG)
 
-# def main():
-#     "your program code"
-# 
-# if __name__ == '__main__':
-#     import logging.config
-#     logging.config.fileConfig('/path/to/logging.conf')
-#     main()
-# or
-# 
-# def main():
-#     import logging.config
-#     logging.config.fileConfig('/path/to/logging.conf')
-#     # your program code
-# 
-# if __name__ == '__main__':
-#     main()
+    # Create a handler that records only ERRORs and CRITICALs
+    errors_only = logging.handlers.TimedRotatingFileHandler(logs_dir / f'ERRORS.bdaybot.{format(datetime.datetime.today(), "%Y-%m-%d")}.log',
+                                                            when='midnight', encoding='UTF-8')
+    errors_only.setLevel(logging.ERROR)
+
+    # Rename files so .log is the file extension
+    everything.namer, errors_only.namer = (file_renamer,) * 2
+
+    # Add handlers to the logger
+    logger.addHandler(everything)
+    logger.addHandler(errors_only)
+
+    # Create a handler so we can see the output on the console
+    console = logging.StreamHandler()
+    console.setLevel(logging.DEBUG)
+
+    # Add handler to the logger
+    logger.addHandler(console)
+    
