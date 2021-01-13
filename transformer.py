@@ -14,8 +14,8 @@ class transformer:
             dynamic_path = os.path.dirname(os.path.abspath(__file__))
         except Exception as e:
             logger.critical("Could not read_excel and/or array positional \
-            error for xlsx_file[] and/or could not find the dynamic path \
-            object of which transformer.py is in" + str(e))
+error for xlsx_file[] and/or could not find the dynamic path \
+object of which transformer.py is in" + str(e))
         
     def getdata(self):
         try:
