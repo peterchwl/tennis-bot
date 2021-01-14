@@ -108,7 +108,7 @@ Please message Coach Doil (Liod#4439) to unlock.''')
                 del lockout[message.author.id]
         else:
             if message.author.id in lockout:
-                if lockout[message.author.id] >= 5:
+                if lockout[message.author.id] >= 15:
                     blacklisttxt = open("blacklist.txt", "a")
                     blacklisttxt.write(str(message.author.id) + " ")
                     blacklisttxt.close()
@@ -157,24 +157,27 @@ Please message Coach Doil (Liod#4439) to unlock.''')
                     await message.channel.send("Student not found. Check for typos and commas and try again.")
                     lockout[message.author.id] += 1
             elif len(msg) == 8:
-                if message.content in token_list:
-                    try:
-                        logger.info(f"Valid token accepted from {message.author}")
-                        for i in range(len(token_list)):
-                            if token_list[i] == message.content:
-                                token_list.pop(i)
-                        member = guildobject.get_member(message.author.id)
-                        await member.add_roles(discord.utils.get(member.guild.roles, name="Alumni"))
-                        await member.remove_roles(discord.utils.get(member.guild.roles, name="Guest"))
-                        logger.info(f"Added {message.author} to the server and gave Alumni role")
-                        await message.channel.send(f"Congratulations {message.author.mention}, you're now in the CV Tennis Discord Server!")
-                    except Exception as e:
-                        logger.error("Cannot assign role. Error: " + str(e))
+                if not data.discordidexists(message.author.id):
+                    if message.content in token_list:
+                        try:
+                            logger.info(f"Valid token accepted from {message.author}")
+                            for i in range(len(token_list)):
+                                if token_list[i] == message.content:
+                                    token_list.pop(i)
+                            member = guildobject.get_member(message.author.id)
+                            await member.add_roles(discord.utils.get(member.guild.roles, name="Alumni"))
+                            await member.remove_roles(discord.utils.get(member.guild.roles, name="Guest"))
+                            logger.info(f"Added {message.author} to the server and gave Alumni role")
+                            await message.channel.send(f"Congratulations {message.author.mention}, you're now in the CV Tennis Discord Server!")
+                        except Exception as e:
+                            logger.error("Cannot assign role. Error: " + str(e))
+                    else:
+                        await message.channel.send("Token not found. Check for typos and try again.")
+                        lockout[message.author.id] += 1
+                        logger.error(f"Invalid token from {message.author}")
                 else:
-                    await message.channel.send("Token not found. Check for typos and try again.")
-                    lockout[message.author.id] += 1
-                    logger.error(f"Invalid token from {message.author}")
-                
+                    await message.channel.send("You are already in the server!")
+                    
             else:
                 await message.channel.send("Student not found. Check for typos and commas and try again.")
                 lockout[message.author.id] += 1
@@ -225,20 +228,58 @@ Copy and paste the token here for access into the server.''')
                         except Exception as e:
                             logger.error("Could not reset roles. Error: " + str(e))                    
                     else:
-                        await message.channel.send('''Roster not detected. Either the \
-attatchment you sent was invalid or the attatchment's name is \
-spelled incorrectly.
-The correct spelling for the file is "CV_Tennis_Roster.xlsx"''')                   
+                        await message.channel.send('''Roster not detected. Attatchment \
+invalid or attatchment's name is spelled incorrectly.
+The correct spelling for the file is "CV_Tennis_Roster.xlsx"''')
+                        logger.error("Roster not found.")
             except Exception as e:
-                logger.error("Roster not found. Error: " + str(e))            
+                logger.error("Could not reset roster. Error: " + str(e))            
             await bot.process_commands(message)
 
 @bot.command()
 async def gettoken(ctx):
-    temp = secrets.token_hex(4)
-    token_list.append(temp)
-    await ctx.send(temp)
-    logger.info(f"Generated new token: '{temp}'")
+    if len(token_list) < 10:
+        temp = secrets.token_hex(4)
+        token_list.append(temp)
+        
+        embed = discord.Embed(
+            colour = discord.Colour.red()
+        )
+        
+        embed.add_field(name="New Token:", value=temp, inline=False)
+
+        await ctx.send(embed=embed)
+        logger.info(f"Generated new token: '{temp}'")
+    else:
+        await ctx.send('''Maximum number of tokens reached! (10)
+Remove tokens from token list to generate more.''')
+
+@bot.command()
+async def listtokens(ctx):
+    embed = discord.Embed(
+        title = "Tokens",
+        description = "-Tokens in Use",
+        colour = discord.Colour.red()
+    )
+    count = 1
+    for i in token_list:
+        embed.add_field(name="#"+str(count)+")", value=str(i), inline=False)
+        count += 1
+    embed.set_footer(text=str(datetime.now().strftime("Date: %b %d, %Y  Time: %I:%M %p")))
+    await ctx.send(embed=embed)
+    logger.info("Got token list.")
+
+@bot.command()
+async def removetoken(ctx,*,number):
+    try:
+        number = int(number)
+        removed = token_list[number-1]
+        token_list.pop(number-1)
+        await ctx.send(str(removed) + " removed from tokens!")
+        logger.info(str(removed) + " removed from tokens!")
+    except Exception as e:
+        await ctx.send("Couldn't remove from tokens")
+        logger.error("Couldn't remove from tokens. Error: " + str(e))
 
 @bot.command()
 async def getblacklist(ctx):
