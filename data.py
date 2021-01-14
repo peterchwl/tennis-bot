@@ -60,7 +60,7 @@ class data:
         try:
             self.roster = pd.read_csv(self.csv_file, index_col=False)
             self.roster.set_index("ID", inplace=True)
-            return author in self.roster["DiscordID"].tolist()
+            return str(author) in self.roster["DiscordID"].tolist()
         except Exception as e:
             logger.critical("Cannot get if DiscordID exists. Error: " + str(e))
     
