@@ -15,7 +15,7 @@ import secrets
 import logs
 
 # Logging
-logger = logging.getLogger("tennislog")
+logger = logging.getLogger("__main__")
 
 load_dotenv()
 token = os.getenv("TOKEN")
@@ -290,7 +290,7 @@ async def removeblacklist(ctx,*,number):
         logger.error("Couldn't remove user from blacklist. Error: " + str(e))
 
 if __name__ == '__main__':
-    logger_names = ['transformer','data','tennislog']
+    logger_names = ['transformer','data','__main__']
     
     for logger_name in logger_names:
         logs.setUpLogger(logger_name)
