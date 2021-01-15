@@ -61,6 +61,17 @@ To recieve a token, please type in 'token' to recieve a special token''')
     guildlist = list(filter(lambda guildlist: guildlist.id == guildid, bot.guilds))
     guildobject = guildlist[0]
     
+    global embedDef
+    embedDef = discord.Embed(
+        colour = discord.Colour.dark_blue()
+    )
+    embedDef.add_field(name="For Students:", value='''For access to the CVHS Tennis Discord Server, please enter your **SCHOOL ID**
+ex: "123456"''', inline=False)
+    embedDef.add_field(name="For Alumni:", value='''Please message **Coach Doil (Liod#4439)** for a token.
+Copy and paste the token here for access into the server''', inline=False)    
+    embedDef.add_field(name="For Help:", value='''Contact ***Peter Lee (pl*#4624)*** or ***Ryan Lee (nayr
+#2153)***''')
+    
     logger.info("Bot is ready to go.")
 
 @bot.event
@@ -72,13 +83,14 @@ async def on_member_join(member):
         logger.info(f"Assigned {member} the 'Guest' role.")
     except Exception as e:
         logger.error("Cannot assign role. Error: " + str(e))
-    await member.send('''------------------------------------------------------------------------
-For access to the CVHS Tennis Discord Server, please enter your **SCHOOL ID**
-
-(ex: "123456")
-------------------------------------------------------------------------
-If you are an **Alumni**, please message **Coach Doil (Liod#4439)** for a token.
-Copy and paste the token here for access into the server.''')
+#     await member.send('''------------------------------------------------------------------------
+# For access to the CVHS Tennis Discord Server, please enter your **SCHOOL ID**
+# 
+# (ex: "123456")
+# ------------------------------------------------------------------------
+# If you are an **Alumni**, please message **Coach Doil (Liod#4439)** for a token.
+# Copy and paste the token here for access into the server.''')
+    await member.send(embed=embedDef)
     
 @bot.event
 async def on_member_remove(member):
@@ -101,9 +113,18 @@ async def on_message(message):
         if str(message.author.id) in blacklist:
             logger.info(f"{str(message.author.id)} was blocked \
 by blacklist.")
-            await message.channel.send('''You've been locked \
+
+            lockoutembed = discord.Embed(
+                title = "Error!",
+                description = ''':x: You've been locked \
 out for too many failed attempts.
-Please message Coach Doil (Liod#4439) to unlock.''')
+Please message ***Coach Doil (Liod#4439)*** to unlock.'''
+            )
+            await message.channel.send(embed=lockoutembed)
+#             await message.channel.send('''You've been locked
+# out for too many failed attempts.
+# Please message Coach Doil (Liod#4439) to unlock.''')
+
             if message.author.id in lockout:
                 del lockout[message.author.id]
         else:
@@ -121,7 +142,15 @@ Please message Coach Doil (Liod#4439) to unlock.''')
                 try:
                     msg = int(msg)
                     if bool(data.isInServer(msg)):
-                        await message.channel.send("You are already in the server!")
+                        inserverembed = discord.Embed(
+                            title = "Error!",
+                            description = ":x: You are already in the server!",
+                            colour = discord.Colour.red()
+                        )
+                        
+                        await message.channel.send(embed=inserverembed)
+                        
+                        # await message.channel.send("You are already in the server!")
                     else:
                         if data.auth(msg):
                             logger.info(f"{message.author} passed authentication.")
@@ -141,20 +170,46 @@ Please message Coach Doil (Liod#4439) to unlock.''')
                                 member = guildobject.get_member(message.author.id)
                                 await member.add_roles(discord.utils.get(member.guild.roles, name=role))
                                 await member.remove_roles(discord.utils.get(member.guild.roles, name="Guest"))
-                                await message.channel.send(f"Congratulations {message.author.mention}, you're now in the CV Tennis Discord Server!")
+                                congratsembed = discord.Embed(
+                                    title = "Congradulations! :tada:",
+                                    description = f"Congratulations {message.author.mention}, you're now in the CV Tennis Discord Server!",
+                                    colour = discord.Colour.green()
+                                )
+                                await message.channel.send(embed=congratsembed)
+                                # await message.channel.send(f"Congratulations {message.author.mention}, you're now in the CV Tennis Discord Server!")
                                 logging.info(f"Gave {message.author} the {str(role)} role.")
                                 tempnick = data.getFullName(msg)
                                 await member.edit(nick=tempnick)
                                 logging.info(f"Updated {message.author}'s nickname")
                             except Exception as e:
+                                assignerror = discord.Embed(
+                                    title = "Error!",
+                                    description = "Error assigning role.",
+                                    colour = discord.Colour.red()
+                                )
+                                await message.channel.send(embed=assignerror)
                                 logger.error("Cannot assign role. Error: " + str(e))
                         else:
-                            await message.channel.send("Student not found. Check for typos and commas and try again.")
+                            stunotfoundembed = discord.Embed(
+                                title = "Student not found",
+                                description = ":x: Check for typos and try again.",
+                                colour = discord.Colour.red()
+                            )
+                            await message.channel.send(embed=stunotfoundembed)
+                            # await message.channel.send("Student not found. Check for typos and commas and try again.")
                             lockout[message.author.id] += 1
                             logger.info(f"{message.author} failed authentication")
                 except Exception as e:
+                    
+                    stunotfoundembed2 = discord.Embed(
+                        title = "Student not found",
+                        description = ":x: Check for typos and try again.",
+                        colour = discord.Colour.red()
+                    )
+                    
                     logger.error("Error: " + str(e))
-                    await message.channel.send("Student not found. Check for typos and commas and try again.")
+                    # await message.channel.send("Student not found. Check for typos and commas and try again.")
+                    await message.channel.send(embed=stunotfoundembed2)
                     lockout[message.author.id] += 1
             elif len(msg) == 8:
                 if not data.discordidexists(message.author.id):
@@ -168,18 +223,54 @@ Please message Coach Doil (Liod#4439) to unlock.''')
                             await member.add_roles(discord.utils.get(member.guild.roles, name="Alumni"))
                             await member.remove_roles(discord.utils.get(member.guild.roles, name="Guest"))
                             logger.info(f"Added {message.author} to the server and gave Alumni role")
-                            await message.channel.send(f"Congratulations {message.author.mention}, you're now in the CV Tennis Discord Server!")
+                            
+                            congratsembed2 = discord.Embed(
+                                title = "Congradulations! :tada:",
+                                description = f"Congratulations {message.author.mention}, you're now in the CV Tennis Discord Server!",
+                                colour = discord.Colour.green()
+                            )
+                            await message.channel.send(embed=congratsembed2)
+                            
+                            
+                            # await message.channel.send(f"Congratulations {message.author.mention}, you're now in the CV Tennis Discord Server!")
                         except Exception as e:
+                            
+                            tokenerror = discord.Embed(
+                                title = "Error!",
+                                description = "Error processing token.",
+                                colour = discord.Colour.red()
+                            )
+                            
+                            await message.channel.send(embed=tokenerror)
+                            
                             logger.error("Cannot assign role. Error: " + str(e))
                     else:
-                        await message.channel.send("Token not found. Check for typos and try again.")
+                        tokennotfound4embed = discord.Embed(
+                            description = "Token not found. Check for typos and try again.",
+                            colour = discord.Colour.red()
+                        )
+                        
+                        await message.channel.send(embed=tokennotfound4embed)
                         lockout[message.author.id] += 1
                         logger.error(f"Invalid token from {message.author}")
                 else:
-                    await message.channel.send("You are already in the server!")
+                    alreadyinserverembed3 = discord.Embed(
+                        description = ":x: You are already in the server!",
+                        colour = discord.Colour.red()
+                    )
+                    await message.channel.send(embed=alreadyinserverembed3)
                     
             else:
-                await message.channel.send("Student not found. Check for typos and commas and try again.")
+                
+                stunotfoundembed3 = discord.Embed(
+                    title = "Student not found",
+                    description = ":x: Check for typos and try again.",
+                    colour = discord.Colour.red()
+                )
+                
+                await message.channel.send(embed=stunotfoundembed3)
+                
+                # await message.channel.send("Student not found. Check for typos and commas and try again.")
                 lockout[message.author.id] += 1
                     
     else:        
@@ -195,10 +286,26 @@ Please message Coach Doil (Liod#4439) to unlock.''')
                             transformer.formatcsv()
                             data.setdata(transformer.getCsvName())
                             switch = True
-                            await message.channel.send("Recieved New Roster!")
-                            logger.info("Updated new roster!")        
+                            
+                            rosterrecieved = discord.Embed(
+                                title = "Success!",
+                                description = ":white_check_mark: Recieved New Roster!",
+                                colour = discord.Colour.green()
+                            )
+                            await message.channel.send(embed=rosterrecieved)
+                            # await message.channel.send("Recieved New Roster!")
+                            logger.info("Updated new roster!")
+                               
                         except Exception as e:
-                            logger.error("Could not update roster. Error: " + str(e))
+                            rostererror = discord.Embed(
+                                title = "Error!",
+                                description = ":x: Error updating roster.",
+                                colour = discord.Colour.red()
+                            )
+                            
+                            await message.channel.send(embed=rostererror)
+                            
+                            logger.error("Error updating roster. Error: " + str(e))
                         try:
                             if switch:    
                                 for member in guildobject.members:
@@ -211,60 +318,100 @@ Please message Coach Doil (Liod#4439) to unlock.''')
                                                 await member.remove_roles(discord.utils.get(member.guild.roles, name=str(i)))
                                                 await member.add_roles(discord.utils.get(guildobject.roles, name="Guest"))
                                                 if flip:
-                                                    await member.send('''------------------------------------------------------------------------
-For access to the CVHS Tennis Discord Server, please enter your **SCHOOL ID**
-
-(ex: "123456")
-------------------------------------------------------------------------
-If you are an **Alumni**, please message **Coach Doil (Liod#4439)** for a token.
-Copy and paste the token here for access into the server.''')
+#                                                     await member.send('''------------------------------------------------------------------------
+# For access to the CVHS Tennis Discord Server, please enter your **SCHOOL ID**
+# 
+# (ex: "123456")
+# ------------------------------------------------------------------------
+# If you are an **Alumni**, please message **Coach Doil (Liod#4439)** for a token.
+# Copy and paste the token here for access into the server.''')
+                                                    await member.send(embed=embedDef)
                                                     flip = False
                                             except:
                                                 pass
-                                await message.channel.send("Sucessfully reset roles!")
+                                confirmrole = discord.Embed(
+                                    title = "Success!",
+                                    description = ":white_check_mark: Successfully reset roles",
+                                    colour = discord.Colour.green()
+                                )
+                                
+                                # await message.channel.send("Sucessfully reset roles!")
+                                await message.channel.send(embed=confirmrole)
+                                
                                 logger.info("Reset all roles!")        
                             else:
+                                roleserror = discord.Embed(
+                                    title = "Error!",
+                                    description = ":x: Could not reset roles becaues a roster is not detected.",
+                                    colour = discord.Colour.red()
+                                )
+                                
+                                await message.channel.send(embed=roleserror)
+                                
                                 logger.info("Could not reset roles beacuse a roster is not detected.")        
                         except Exception as e:
+                            tryerror = discord.Embed(
+                                title = "Error!",
+                                description = ":x: Error reseting roles.",
+                                colour = discord.Colour.red()
+                            )
+                            
+                            await message.channel.send(embed=tryerror)
+                            
                             logger.error("Could not reset roles. Error: " + str(e))                    
                     else:
-                        await message.channel.send('''Roster not detected. Attatchment \
+                        noroster = discord.Embed(
+                            title = "Roster not detected!",
+                            description = ''':x: Attatchment \
 invalid or attatchment's name is spelled incorrectly.
-The correct spelling for the file is "CV_Tennis_Roster.xlsx"''')
+The correct spelling for the file is "CV_Tennis_Roster.xlsx"''',
+                            colour = discord.Colour.red()
+                        )
+                        
+                        await message.channel.send(embed=noroster)
+#                         await message.channel.send('''Roster not detected. Attatchment \
+# invalid or attatchment's name is spelled incorrectly.
+# The correct spelling for the file is "CV_Tennis_Roster.xlsx"''')
                         logger.error("Roster not found.")
             except Exception as e:
                 logger.error("Could not reset roster. Error: " + str(e))            
             await bot.process_commands(message)
 
 @bot.command()
-async def gettoken(ctx):
+async def newtoken(ctx):
+    embed = discord.Embed(
+        colour = discord.Colour.purple()
+    )
+    
     if len(token_list) < 10:
         temp = secrets.token_hex(4)
         token_list.append(temp)
         
-        embed = discord.Embed(
-            colour = discord.Colour.red()
-        )
-        
-        embed.add_field(name="New Token:", value=temp, inline=False)
+        embed.add_field(name="New Token:", value=":white_check_mark: " + temp, inline=False)
 
         await ctx.send(embed=embed)
         logger.info(f"Generated new token: '{temp}'")
     else:
-        await ctx.send('''Maximum number of tokens reached! (10)
-Remove tokens from token list to generate more.''')
+        embed.add_field(name="Error!", value=''':x: Maximum number of tokens reached! (10)
+Remove tokens from token list to generate more.''', inline=False)
+        await ctx.send(embed=embed)
+        logger.info("Failed to generate new token.")
+#         await ctx.send('''Maximum number of tokens reached! (10)
+# Remove tokens from token list to generate more.''')
 
 @bot.command()
-async def listtokens(ctx):
+async def gettokens(ctx):
     embed = discord.Embed(
         title = "Tokens",
         description = "-Tokens in Use",
-        colour = discord.Colour.red()
+        colour = discord.Colour.purple()
     )
     count = 1
     for i in token_list:
         embed.add_field(name="#"+str(count)+")", value=str(i), inline=False)
         count += 1
+    if count == 1:
+        embed.add_field(name="#1)", value="None", inline=False)
     embed.set_footer(text=str(datetime.now().strftime("Date: %b %d, %Y  Time: %I:%M %p")))
     await ctx.send(embed=embed)
     logger.info("Got token list.")
@@ -272,13 +419,22 @@ async def listtokens(ctx):
 @bot.command()
 async def removetoken(ctx,*,number):
     try:
+        embed = discord.Embed(
+            colour = discord.Colour.purple()
+        )
         number = int(number)
         removed = token_list[number-1]
         token_list.pop(number-1)
-        await ctx.send(str(removed) + " removed from tokens!")
+        
+        embed.add_field(name="Removed!", value=":white_check_mark: '" + str(removed) + "' removed from tokens!")
+        
+        # await ctx.send(str(removed) + " removed from tokens!")
+        await ctx.send(embed=embed)
         logger.info(str(removed) + " removed from tokens!")
     except Exception as e:
-        await ctx.send("Couldn't remove from tokens")
+        embed.add_field(name="Error!", value=":x: Could not remove from tokens.")
+        # await ctx.send("Couldn't remove from tokens")
+        await ctx.send(embed=embed)
         logger.error("Couldn't remove from tokens. Error: " + str(e))
 
 @bot.command()
@@ -293,6 +449,8 @@ async def getblacklist(ctx):
     blacklist = blacklisttxt.read().split(" ")
     blacklisttxt.close()
     
+    
+    
     count = 1
     for i in blacklist:
         if i != "":
@@ -306,6 +464,10 @@ async def getblacklist(ctx):
 
 @bot.command()
 async def removeblacklist(ctx,*,number):
+    embed = discord.Embed(
+        colour = discord.Colour.blue()
+    )
+    
     try:
         number = int(number)
         blacklisttxt = open("blacklist.txt", "r")
@@ -321,14 +483,21 @@ async def removeblacklist(ctx,*,number):
         blacklisttxt2.write(newlist)
         blacklisttxt2.close()
         if removed != "":
-            await ctx.send("<@"+str(removed)+"> removed from blacklist!")
+            embed.add_field(name="Removed!", value=":white_check_mark: <@"+str(removed)+"> removed from blacklist!")
+            # await ctx.send("<@"+str(removed)+"> removed from blacklist!")
+            await ctx.send(embed=embed)
             logger.info(f"{removed} removed from blacklist!")
         else:
-            await ctx.send("Please select a valid user.")
-            logger.warning(f"Invalid user selected for blacklist removal.")
+            embed.add_field(name="Error!", value=":x: Please select a valid user.")
+            # await ctx.send("Please select a valid user.")
+            await ctx.send(embed=embed)
+            logger.warning("Invalid user selected for blacklist removal.")
     except Exception as e:
-        await ctx.send("Couldn't remove user from blacklist")
+        embed.add_field(name="Error!", value=":x: Could not remove user from blacklist.")
+        # await ctx.send("Couldn't remove user from blacklist")
+        await ctx.send(embed=embed)
         logger.error("Couldn't remove user from blacklist. Error: " + str(e))
+
 
 if __name__ == '__main__':
     logger_names = ['transformer','data','__main__']
