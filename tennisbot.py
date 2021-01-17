@@ -69,8 +69,7 @@ To recieve a token, please type in 'token' to recieve a special token''')
 ex: "123456"''', inline=False)
     embedDef.add_field(name="For Alumni:", value='''Please message **Coach Doil (Liod#4439)** for a token.
 Copy and paste the token here for access into the server''', inline=False)    
-    embedDef.add_field(name="For Help:", value='''Contact ***Peter Lee (pl*#4624)*** or ***Ryan Lee (nayr
-#2153)***''')
+    embedDef.add_field(name="For Help:", value='''Contact ***Peter Lee (pl*#4624)*** or ***Ryan Lee (nayr#2153)***''')
     
     logger.info("Bot is ready to go.")
 
@@ -141,7 +140,7 @@ Please message ***Coach Doil (Liod#4439)*** to unlock.'''
             if len(msg) == 6:
                 try:
                     msg = int(msg)
-                    if bool(data.isInServer(msg)):
+                    if bool(data.isInServer(msg)) or data.discordidexists(message.author.id):
                         inserverembed = discord.Embed(
                             title = "Error!",
                             description = ":x: You are already in the server!",
@@ -191,8 +190,8 @@ Please message ***Coach Doil (Liod#4439)*** to unlock.'''
                                 logger.error("Cannot assign role. Error: " + str(e))
                         else:
                             stunotfoundembed = discord.Embed(
-                                title = "Student not found",
-                                description = ":x: Check for typos and try again.",
+                                title = "Error!",
+                                description = ":x: Student not found. Check for typos and try again.",
                                 colour = discord.Colour.red()
                             )
                             await message.channel.send(embed=stunotfoundembed)
@@ -202,8 +201,8 @@ Please message ***Coach Doil (Liod#4439)*** to unlock.'''
                 except Exception as e:
                     
                     stunotfoundembed2 = discord.Embed(
-                        title = "Student not found",
-                        description = ":x: Check for typos and try again.",
+                        title = "Error!",
+                        description = ":x: Student not found. Check for typos and try again.",
                         colour = discord.Colour.red()
                     )
                     
@@ -237,7 +236,7 @@ Please message ***Coach Doil (Liod#4439)*** to unlock.'''
                             
                             tokenerror = discord.Embed(
                                 title = "Error!",
-                                description = "Error processing token.",
+                                description = ":x: Error processing token.",
                                 colour = discord.Colour.red()
                             )
                             
@@ -246,7 +245,8 @@ Please message ***Coach Doil (Liod#4439)*** to unlock.'''
                             logger.error("Cannot assign role. Error: " + str(e))
                     else:
                         tokennotfound4embed = discord.Embed(
-                            description = "Token not found. Check for typos and try again.",
+                            title = "Error!",
+                            description = ":x: Token not found. Check for typos and try again.",
                             colour = discord.Colour.red()
                         )
                         
@@ -255,6 +255,7 @@ Please message ***Coach Doil (Liod#4439)*** to unlock.'''
                         logger.error(f"Invalid token from {message.author}")
                 else:
                     alreadyinserverembed3 = discord.Embed(
+                        title = "Error!",
                         description = ":x: You are already in the server!",
                         colour = discord.Colour.red()
                     )
@@ -263,8 +264,8 @@ Please message ***Coach Doil (Liod#4439)*** to unlock.'''
             else:
                 
                 stunotfoundembed3 = discord.Embed(
-                    title = "Student not found",
-                    description = ":x: Check for typos and try again.",
+                    title = "Error!",
+                    description = ":x: Student not found. Check for typos and try again.",
                     colour = discord.Colour.red()
                 )
                 
@@ -464,9 +465,6 @@ async def getblacklist(ctx):
 
 @bot.command()
 async def removeblacklist(ctx,*,number):
-    embed = discord.Embed(
-        colour = discord.Colour.blue()
-    )
     
     try:
         number = int(number)
@@ -483,19 +481,29 @@ async def removeblacklist(ctx,*,number):
         blacklisttxt2.write(newlist)
         blacklisttxt2.close()
         if removed != "":
-            embed.add_field(name="Removed!", value=":white_check_mark: <@"+str(removed)+"> removed from blacklist!")
+            embed1 = discord.Embed(
+                colour = discord.Colour.blue()
+            )
+            
+            embed1.add_field(name="Removed!", value=":white_check_mark: <@"+str(removed)+"> removed from blacklist!")
             # await ctx.send("<@"+str(removed)+"> removed from blacklist!")
-            await ctx.send(embed=embed)
+            await ctx.send(embed=embed1)
             logger.info(f"{removed} removed from blacklist!")
         else:
-            embed.add_field(name="Error!", value=":x: Please select a valid user.")
+            embed2 = discord.Embed(
+                colour = discord.Colour.red()
+            )
+            embed2.add_field(name="Error!", value=":x: Please select a valid user.")
             # await ctx.send("Please select a valid user.")
-            await ctx.send(embed=embed)
+            await ctx.send(embed=embed2)
             logger.warning("Invalid user selected for blacklist removal.")
     except Exception as e:
-        embed.add_field(name="Error!", value=":x: Could not remove user from blacklist.")
+        embed3 = discord.Embed(
+            colour = discord.Colour.red()
+        )
+        embed3.add_field(name="Error!", value=":x: Could not remove user from blacklist.")
         # await ctx.send("Couldn't remove user from blacklist")
-        await ctx.send(embed=embed)
+        await ctx.send(embed=embed3)
         logger.error("Couldn't remove user from blacklist. Error: " + str(e))
 
 
