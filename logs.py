@@ -45,5 +45,3 @@ def setUpLogger(loggers):
 
     # Add handler to the logger
     logger.addHandler(console)
-    
-    
