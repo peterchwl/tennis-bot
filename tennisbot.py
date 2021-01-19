@@ -69,7 +69,7 @@ To recieve a token, please type in 'token' to recieve a special token''')
 ex: "123456"''', inline=False)
     embedDef.add_field(name="For Alumni:", value='''Please message **Coach Doil (Liod#4439)** for a token.
 Copy and paste the token here for access into the server''', inline=False)    
-    embedDef.add_field(name="For Help:", value='''Contact ***Peter Lee (pl*#4624)*** or ***Ryan Lee (nayr#2153)***''')
+    embedDef.add_field(name="For Help:", value='''Contact **Peter Lee (pl*#4624)** or **Ryan Lee (nayr#2153)**''')
     
     logger.info("Bot is ready to go.")
 
@@ -159,15 +159,18 @@ Please message ***Coach Doil (Liod#4439)*** to unlock.'''
                                 await member.add_roles(discord.utils.get(member.guild.roles, name=role))
                                 await member.remove_roles(discord.utils.get(member.guild.roles, name="Guest"))
                                 congratsembed = discord.Embed(
-                                    title = "Congradulations! :tada:",
+                                    title = "Congratulations! :tada:",
                                     description = f"Congratulations {message.author.mention}, you're now in the CV Tennis Discord Server!",
                                     colour = discord.Colour.green()
                                 )
                                 await message.channel.send(embed=congratsembed)
-                                logging.info(f"Gave {message.author} the {str(role)} role.")
+                                logger.info(f"Gave {message.author} the {str(role)} role.")
                                 tempnick = data.getFullName(msg)
-                                await member.edit(nick=tempnick)
-                                logging.info(f"Updated {message.author}'s nickname")
+                                if not message.author.id == 250776640681017345:
+                                    await member.edit(nick=tempnick)
+                                    logger.info(f"Updated {message.author}'s nickname")
+                                else:
+                                    logger.info("Can't change server owner's nickname")
                             except Exception as e:
                                 assignerror = discord.Embed(
                                     title = "Error!",
@@ -204,13 +207,14 @@ Please message ***Coach Doil (Liod#4439)*** to unlock.'''
                             for i in range(len(token_list)):
                                 if token_list[i] == message.content:
                                     token_list.pop(i)
+                                    break
                             member = guildobject.get_member(message.author.id)
                             await member.add_roles(discord.utils.get(member.guild.roles, name="Alumni"))
                             await member.remove_roles(discord.utils.get(member.guild.roles, name="Guest"))
                             logger.info(f"Added {message.author} to the server and gave Alumni role")
                             
                             congratsembed2 = discord.Embed(
-                                title = "Congradulations! :tada:",
+                                title = "Congratulations! :tada:",
                                 description = f"Congratulations {message.author.mention}, you're now in the CV Tennis Discord Server!",
                                 colour = discord.Colour.green()
                             )
@@ -284,13 +288,12 @@ Please message ***Coach Doil (Liod#4439)*** to unlock.'''
                             await message.channel.send(embed=rostererror)
                             logger.error("Error updating roster. Error: " + str(e))
                         try:
-                            if switch:    
+                            if switch:
+                                teamroles = ["Varsity Boys", "Varsity Girls", "JV Boys", "JV Girls"]
                                 for member in guildobject.members:
                                     flip = True
                                     for i in member.roles:
-                                        if i.name == "Alumni" or i.name == "Guest":
-                                            pass
-                                        else:
+                                        if i.name in teamroles:
                                             try:
                                                 await member.remove_roles(discord.utils.get(member.guild.roles, name=str(i)))
                                                 await member.add_roles(discord.utils.get(guildobject.roles, name="Guest"))
