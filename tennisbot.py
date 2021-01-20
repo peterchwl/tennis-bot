@@ -261,82 +261,82 @@ Please message ***Coach Doil (Liod#4439)*** to unlock.'''
                     
     else:        
         if message.channel.name == "cmd":
-            try:
-                if len(message.attachments) == 1:
-                    if message.attachments[0].filename == "CV_Tennis_Roster.xlsx":
-                        switch = False
-                        try:
-                            await message.attachments[0].save(message.attachments[0].filename)
-                            transformer.setfile(message.attachments[0].filename)
-                            transformer.updatecsv()
-                            transformer.formatcsv()
-                            data.setdata(transformer.getCsvName())
-                            switch = True
-                            rosterrecieved = discord.Embed(
+            # try:
+            if len(message.attachments) == 1:
+                if message.attachments[0].filename == "CV_Tennis_Roster.xlsx":
+                    switch = False
+                    # try:
+                    await message.attachments[0].save(message.attachments[0].filename)
+                    transformer.setfile(message.attachments[0].filename)
+                    transformer.updatecsv()
+                    transformer.formatcsv()
+                    data.setdata(transformer.getCsvName())
+                    switch = True
+                    rosterrecieved = discord.Embed(
+                        title = "Success!",
+                        description = ":white_check_mark: Recieved New Roster!",
+                        colour = discord.Colour.green()
+                    )
+                    await message.channel.send(embed=rosterrecieved)
+                    logger.info("Updated new roster!")   
+                    # # except Exception as e:
+                    #     rostererror = discord.Embed(
+                    #         title = "Error!",
+                    #         description = ":x: Error updating roster.",
+                    #         colour = discord.Colour.red()
+                    #     )
+                    #     await message.channel.send(embed=rostererror)
+                    #     logger.error("Error updating roster. Error: " + str(e))
+                    try:
+                        if switch:
+                            teamroles = ["Varsity Boys", "Varsity Girls", "JV Boys", "JV Girls"]
+                            for member in guildobject.members:
+                                flip = True
+                                for i in member.roles:
+                                    if i.name in teamroles:
+                                        try:
+                                            await member.remove_roles(discord.utils.get(member.guild.roles, name=str(i)))
+                                            await member.add_roles(discord.utils.get(guildobject.roles, name="Guest"))
+                                            if flip:
+                                                await member.send(embed=embedDef)
+                                                flip = False
+                                        except:
+                                            pass
+                            confirmrole = discord.Embed(
                                 title = "Success!",
-                                description = ":white_check_mark: Recieved New Roster!",
+                                description = ":white_check_mark: Successfully reset roles",
                                 colour = discord.Colour.green()
                             )
-                            await message.channel.send(embed=rosterrecieved)
-                            logger.info("Updated new roster!")   
-                        except Exception as e:
-                            rostererror = discord.Embed(
+                            await message.channel.send(embed=confirmrole)
+                            logger.info("Reset all roles!")        
+                        else:
+                            roleserror = discord.Embed(
                                 title = "Error!",
-                                description = ":x: Error updating roster.",
+                                description = ":x: Could not reset roles becaues a roster is not detected.",
                                 colour = discord.Colour.red()
                             )
-                            await message.channel.send(embed=rostererror)
-                            logger.error("Error updating roster. Error: " + str(e))
-                        try:
-                            if switch:
-                                teamroles = ["Varsity Boys", "Varsity Girls", "JV Boys", "JV Girls"]
-                                for member in guildobject.members:
-                                    flip = True
-                                    for i in member.roles:
-                                        if i.name in teamroles:
-                                            try:
-                                                await member.remove_roles(discord.utils.get(member.guild.roles, name=str(i)))
-                                                await member.add_roles(discord.utils.get(guildobject.roles, name="Guest"))
-                                                if flip:
-                                                    await member.send(embed=embedDef)
-                                                    flip = False
-                                            except:
-                                                pass
-                                confirmrole = discord.Embed(
-                                    title = "Success!",
-                                    description = ":white_check_mark: Successfully reset roles",
-                                    colour = discord.Colour.green()
-                                )
-                                await message.channel.send(embed=confirmrole)
-                                logger.info("Reset all roles!")        
-                            else:
-                                roleserror = discord.Embed(
-                                    title = "Error!",
-                                    description = ":x: Could not reset roles becaues a roster is not detected.",
-                                    colour = discord.Colour.red()
-                                )
-                                await message.channel.send(embed=roleserror)        
-                                logger.info("Could not reset roles beacuse a roster is not detected.")        
-                        except Exception as e:
-                            tryerror = discord.Embed(
-                                title = "Error!",
-                                description = ":x: Error reseting roles.",
-                                colour = discord.Colour.red()
-                            )        
-                            await message.channel.send(embed=tryerror)            
-                            logger.error("Could not reset roles. Error: " + str(e))                    
-                    else:
-                        noroster = discord.Embed(
-                            title = "Roster not detected!",
-                            description = ''':x: Attatchment \
-invalid or attatchment's name is spelled incorrectly.
-The correct spelling for the file is "CV_Tennis_Roster.xlsx"''',
+                            await message.channel.send(embed=roleserror)        
+                            logger.info("Could not reset roles beacuse a roster is not detected.")        
+                    except Exception as e:
+                        tryerror = discord.Embed(
+                            title = "Error!",
+                            description = ":x: Error reseting roles.",
                             colour = discord.Colour.red()
                         )        
-                        await message.channel.send(embed=noroster)
-                        logger.error("Roster not found.")
-            except Exception as e:
-                logger.error("Could not reset roster. Error: " + str(e))            
+                        await message.channel.send(embed=tryerror)            
+                        logger.error("Could not reset roles. Error: " + str(e))                    
+                else:
+                    noroster = discord.Embed(
+                        title = "Roster not detected!",
+                        description = ''':x: Attatchment \
+invalid or attatchment's name is spelled incorrectly.
+The correct spelling for the file is "CV_Tennis_Roster.xlsx"''',
+                        colour = discord.Colour.red()
+                    )        
+                    await message.channel.send(embed=noroster)
+                    logger.error("Roster not found.")
+            # except Exception as e:
+            #     logger.error("Could not reset roster. Error: " + str(e))            
             await bot.process_commands(message)
 
 #token command group
