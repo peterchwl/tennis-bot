@@ -37,6 +37,8 @@ object of which transformer.py is in" + str(e))
     def formatcsv(self):
         csv_file = csvname
         pandascsv = pd.read_csv(csv_file, index_col=False)
+        print(self.xlsx_file)
+        print(pandascsv)
         pandascsv.columns = ["ID", "None", "LastName", "FirstName", "Role", "DiscordID", "inServer"]
         del pandascsv["None"]
         pandascsv["Role"] = "None"
