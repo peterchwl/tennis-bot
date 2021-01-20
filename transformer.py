@@ -37,7 +37,7 @@ object of which transformer.py is in" + str(e))
     def formatcsv(self):
         # csv_file = csvname
         # pandascsv = pd.read_csv(csv_file, index_col=False)
-        pandascsv = pd.read_excel(self.xlsx_file, index_col=False)
+        pandascsv = pd.read_excel("CV_Tennis_Roster.xlsx", index_col=False)
         
         
         pandascsv.columns = ["ID", "None", "LastName", "FirstName"]
