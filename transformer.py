@@ -35,8 +35,11 @@ object of which transformer.py is in" + str(e))
         self.xlsx_file.to_csv(f"{dynamic_path}\{csvname}", index=None, header=True)
     
     def formatcsv(self):
-        csv_file = csvname
-        pandascsv = pd.read_csv(csv_file, index_col=False)
+        # csv_file = csvname
+        # pandascsv = pd.read_csv(csv_file, index_col=False)
+        pandascsv = pd.read_excel(self.xlsx_file, index_col=False)
+        
+        
         pandascsv.columns = ["ID", "None", "LastName", "FirstName"]
         del pandascsv["None"]
         pandascsv["Role"] = "None"
@@ -65,8 +68,7 @@ object of which transformer.py is in" + str(e))
             pandascsv["FirstName"][row] = namelist[0]         
                 
         pandascsv.set_index("ID", inplace=True)
-        print(self.xlsx_file)
-        pandascsv.to_csv(csv_file)
+        # pandascsv.to_csv(csv_file)
     
     def getCsvName(self):
         return csvname
