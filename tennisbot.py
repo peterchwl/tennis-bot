@@ -265,28 +265,28 @@ Please message ***Coach Doil (Liod#4439)*** to unlock.'''
                 if len(message.attachments) == 1:
                     if message.attachments[0].filename == "CV_Tennis_Roster.xlsx":
                         switch = False
-                        try:
-                            await message.attachments[0].save(message.attachments[0].filename)
-                            transformer.setfile(message.attachments[0].filename)
-                            transformer.updatecsv()
-                            transformer.formatcsv()
-                            data.setdata(transformer.getCsvName())
-                            switch = True
-                            rosterrecieved = discord.Embed(
-                                title = "Success!",
-                                description = ":white_check_mark: Recieved New Roster!",
-                                colour = discord.Colour.green()
-                            )
-                            await message.channel.send(embed=rosterrecieved)
-                            logger.info("Updated new roster!")   
-                        except Exception as e:
-                            rostererror = discord.Embed(
-                                title = "Error!",
-                                description = ":x: Error updating roster.",
-                                colour = discord.Colour.red()
-                            )
-                            await message.channel.send(embed=rostererror)
-                            logger.error("Error updating roster. Error: " + str(e))
+                        # try:
+                        await message.attachments[0].save(message.attachments[0].filename)
+                        transformer.setfile(message.attachments[0].filename)
+                        transformer.updatecsv()
+                        transformer.formatcsv()
+                        data.setdata(transformer.getCsvName())
+                        switch = True
+                        rosterrecieved = discord.Embed(
+                            title = "Success!",
+                            description = ":white_check_mark: Recieved New Roster!",
+                            colour = discord.Colour.green()
+                        )
+                        await message.channel.send(embed=rosterrecieved)
+                        logger.info("Updated new roster!")   
+                        # # except Exception as e:
+                        #     rostererror = discord.Embed(
+                        #         title = "Error!",
+                        #         description = ":x: Error updating roster.",
+                        #         colour = discord.Colour.red()
+                        #     )
+                        #     await message.channel.send(embed=rostererror)
+                        #     logger.error("Error updating roster. Error: " + str(e))
                         try:
                             if switch:
                                 teamroles = ["Varsity Boys", "Varsity Girls", "JV Boys", "JV Girls"]
