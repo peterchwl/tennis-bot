@@ -65,6 +65,7 @@ object of which transformer.py is in" + str(e))
             pandascsv["FirstName"][row] = namelist[0]         
                 
         pandascsv.set_index("ID", inplace=True)
+        print(self.xlsx_file)
         pandascsv.to_csv(csv_file)
     
     def getCsvName(self):
