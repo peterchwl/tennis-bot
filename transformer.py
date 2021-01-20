@@ -1,5 +1,6 @@
 import pandas as pd
 import os.path
+from os import path
 import logging
 
 logger = logging.getLogger(__name__)
@@ -16,6 +17,8 @@ class transformer:
             logger.critical("Could not read_excel and/or array positional \
 error for xlsx_file[] and/or could not find the dynamic path \
 object of which transformer.py is in" + str(e))
+        self.updatecsv()
+        self.formatcsv()
         
     def getdata(self):
         try:
@@ -32,14 +35,12 @@ object of which transformer.py is in" + str(e))
         dynamic_path = os.path.dirname(os.path.abspath(__file__))
     
     def updatecsv(self):
-        self.xlsx_file.to_csv(f"{dynamic_path}\{csvname}", index=None, header=True)
+        self.xlsx_file.to_csv(csvname, index=None, header=True)
     
     def formatcsv(self):
-        # csv_file = csvname
-        # pandascsv = pd.read_csv(csv_file, index_col=False)
-        pandascsv = pd.read_excel("CV_Tennis_Roster.xlsx", index_col=False)
-        
-        
+        csv_file = csvname
+        pandascsv = pd.read_csv(csv_file, index_col=False)
+
         pandascsv.columns = ["ID", "None", "LastName", "FirstName"]
         del pandascsv["None"]
         pandascsv["Role"] = "None"
@@ -68,8 +69,7 @@ object of which transformer.py is in" + str(e))
             pandascsv["FirstName"][row] = namelist[0]         
                 
         pandascsv.set_index("ID", inplace=True)
-        self.xlsx = pandascsv
-        # pandascsv.to_csv(csv_file)
+        pandascsv.to_csv(csv_file)
     
     def getCsvName(self):
         return csvname
