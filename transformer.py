@@ -25,7 +25,7 @@ object of which transformer.py is in" + str(e))
             logger.critical("Cannot get data. Error: " + str(e))
     
     def setfile(self, xlsx_file):
-        self.xlsx_file = pd.read_excel(xlsx_file)
+        self.xlsx_file = pd.read_excel(xlsx_file, engine='openpyxl')
         global csvname
         csvname = xlsx_file[:-4] + "csv"
         global dynamic_path
