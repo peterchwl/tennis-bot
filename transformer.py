@@ -17,8 +17,9 @@ class transformer:
             logger.critical("Could not read_excel and/or array positional \
 error for xlsx_file[] and/or could not find the dynamic path \
 object of which transformer.py is in" + str(e))
-        self.updatecsv()
-        self.formatcsv()
+        if not path.exists(csvname):
+            self.updatecsv()
+            self.formatcsv()
         
     def getdata(self):
         try:
