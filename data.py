@@ -10,7 +10,7 @@ class data:
             self.csv_file = csv_file
             self.roster = pd.read_csv(self.csv_file, index_col=False)
             self.roster.set_index("ID", inplace=True)
-            except Exception as e:
+        except Exception as e:
             logger.critical('''Csv was not read and/or "ID" index was not set Error: ''' + str(e))
         
     def getdata(self):
