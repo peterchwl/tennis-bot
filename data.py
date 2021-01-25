@@ -6,12 +6,12 @@ logger = logging.getLogger(__name__)
 
 class data:
     def __init__(self, csv_file):
-        # try:
-        self.csv_file = csv_file
-        self.roster = pd.read_csv(self.csv_file, index_col=False)
-        self.roster.set_index("ID", inplace=True)
-        # except Exception as e:
-        #     logger.critical('''Csv was not read and/or "ID" index was not set Error: ''' + str(e))
+        try:
+            self.csv_file = csv_file
+            self.roster = pd.read_csv(self.csv_file, index_col=False)
+            self.roster.set_index("ID", inplace=True)
+            except Exception as e:
+            logger.critical('''Csv was not read and/or "ID" index was not set Error: ''' + str(e))
         
     def getdata(self):
         try:
