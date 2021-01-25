@@ -63,6 +63,7 @@ To recieve a token, please type in 'token' to recieve a special token''')
     
     global embedDef
     embedDef = discord.Embed(
+        title = "To get into the CVHS Tennis Discord server...",
         colour = discord.Colour.dark_blue()
     )
     embedDef.add_field(name="For Students:", value='''For access to the CVHS Tennis Discord Server, please enter your **SCHOOL ID**
@@ -166,11 +167,18 @@ Please message ***Coach Doil (Liod#4439)*** to unlock.'''
                                 await message.channel.send(embed=congratsembed)
                                 logger.info(f"Gave {message.author} the {str(role)} role.")
                                 tempnick = data.getFullName(msg)
-                                if not message.author.id == 250776640681017345:
+                                try:
                                     await member.edit(nick=tempnick)
                                     logger.info(f"Updated {message.author}'s nickname")
-                                else:
-                                    logger.info("Can't change server owner's nickname")
+                                except Exception as e:
+                                    nickerror = discord.Embed(
+                                        title = "Error!",
+                                        description = "Error assigning nickname. May be because you are a Coach or Server Admin.",
+                                        colour = discord.Colour.red()
+                                    )
+                                    await message.channel.send(embed=nickerror)
+                                    logger.error("Cannot change nickname. Error: " + str(e))
+                                    
                             except Exception as e:
                                 assignerror = discord.Embed(
                                     title = "Error!",
