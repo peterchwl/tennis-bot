@@ -477,6 +477,10 @@ async def remove_subcommand(ctx,*,number):
         await ctx.send(embed=embed3)
         logger.error("Couldn't remove user from blacklist. Error: " + str(e))
 
+@bot.command()
+async def getroster(ctx):
+      await ctx.send(file=discord.File(r'CV_Tennis_Roster.xlsx'))
+
 if __name__ == '__main__':
     logger_names = ['transformer','data','__main__']
     
