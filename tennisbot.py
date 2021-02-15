@@ -18,9 +18,9 @@ import logs
 logger = logging.getLogger("__main__")
 
 load_dotenv()
-token = os.getenv("TOKEN")
+token = os.getenv("TESTTOKEN")
 
-guildid = os.getenv("GUILDID")
+guildid = os.getenv("TESTID")
 guildid = int(guildid)
 
 intents = discord.Intents.default()
@@ -279,7 +279,7 @@ Please message ***Coach Doil (Liod#4439)*** to unlock.'''
                             transformer.updatecsv()
                             transformer.formatcsv()
                             data.setdata(transformer.getCsvName())
-                            switch = True
+                            # switch = True
                             rosterrecieved = discord.Embed(
                                 title = "Success!",
                                 description = ":white_check_mark: Recieved New Roster!",
@@ -295,44 +295,44 @@ Please message ***Coach Doil (Liod#4439)*** to unlock.'''
                             )
                             await message.channel.send(embed=rostererror)
                             logger.error("Error updating roster. Error: " + str(e))
-                        try:
-                            if switch:
-                                teamroles = ["Varsity Boys", "Varsity Girls", "JV Boys", "JV Girls"]
-                                for member in guildobject.members:
-                                    flip = True
-                                    for i in member.roles:
-                                        if i.name in teamroles:
-                                            try:
-                                                await member.remove_roles(discord.utils.get(member.guild.roles, name=str(i)))
-                                                await member.add_roles(discord.utils.get(guildobject.roles, name="Guest"))
-                                                if flip:
-                                                    await member.send(embed=embedDef)
-                                                    flip = False
-                                            except:
-                                                pass
-                                confirmrole = discord.Embed(
-                                    title = "Success!",
-                                    description = ":white_check_mark: Successfully reset roles",
-                                    colour = discord.Colour.green()
-                                )
-                                await message.channel.send(embed=confirmrole)
-                                logger.info("Reset all roles!")        
-                            else:
-                                roleserror = discord.Embed(
-                                    title = "Error!",
-                                    description = ":x: Could not reset roles becaues a roster is not detected.",
-                                    colour = discord.Colour.red()
-                                )
-                                await message.channel.send(embed=roleserror)        
-                                logger.info("Could not reset roles beacuse a roster is not detected.")        
-                        except Exception as e:
-                            tryerror = discord.Embed(
-                                title = "Error!",
-                                description = ":x: Error reseting roles.",
-                                colour = discord.Colour.red()
-                            )        
-                            await message.channel.send(embed=tryerror)            
-                            logger.error("Could not reset roles. Error: " + str(e))                    
+                        # try:
+                        #     if switch:
+                        #         teamroles = ["Varsity Boys", "Varsity Girls", "JV Boys", "JV Girls"]
+                        #         for member in guildobject.members:
+                        #             flip = True
+                        #             for i in member.roles:
+                        #                 if i.name in teamroles:
+                        #                     try:
+                        #                         await member.remove_roles(discord.utils.get(member.guild.roles, name=str(i)))
+                        #                         await member.add_roles(discord.utils.get(guildobject.roles, name="Guest"))
+                        #                         if flip:
+                        #                             await member.send(embed=embedDef)
+                        #                             flip = False
+                        #                     except:
+                        #                         pass
+                        #         confirmrole = discord.Embed(
+                        #             title = "Success!",
+                        #             description = ":white_check_mark: Successfully reset roles",
+                        #             colour = discord.Colour.green()
+                        #         )
+                        #         await message.channel.send(embed=confirmrole)
+                        #         logger.info("Reset all roles!")        
+                        #     else:
+                        #         roleserror = discord.Embed(
+                        #             title = "Error!",
+                        #             description = ":x: Could not reset roles becaues a roster is not detected.",
+                        #             colour = discord.Colour.red()
+                        #         )
+                        #         await message.channel.send(embed=roleserror)        
+                        #         logger.info("Could not reset roles beacuse a roster is not detected.")        
+                        # except Exception as e:
+                        #     tryerror = discord.Embed(
+                        #         title = "Error!",
+                        #         description = ":x: Error reseting roles.",
+                        #         colour = discord.Colour.red()
+                        #     )        
+                        #     await message.channel.send(embed=tryerror)            
+                        #     logger.error("Could not reset roles. Error: " + str(e))                    
                     else:
                         noroster = discord.Embed(
                             title = "Roster not detected!",
@@ -486,6 +486,52 @@ if __name__ == '__main__':
     
     for logger_name in logger_names:
         logs.setUpLogger(logger_name)
+
+@bot.command()
+async def resetallroles(ctx):
+    try:
+        for member in guildobject.members:
+            flip = True
+            if "Alumni" in member.roles or "Guest" in member.roles:
+                pass
+            else:
+                for i in member.roles:
+                    try:
+                        await member.remove_roles(discord.utils.get(member.guild.roles, name=str(i)))
+                        await member.add_roles(discord.utils.get(ctx.guild.roles, name='Guest'))
+                        if flip:
+                            await member.send(embed=embedDef)
+                            flip = False
+                    except:
+                        pass
+            # for i in member.roles:
+            #     if "Alumni" in member.roles or "Guest" in member.roles:
+            #     # if i.name == "Alumni" or i.name == "Guest":
+            #         break
+            #     else:
+            #         try:
+            #             await member.remove_roles(discord.utils.get(member.guild.roles, name=str(i)))
+            #             await member.add_roles(discord.utils.get(ctx.guild.roles, name='Guest'))
+            #             if flip:
+            #                 await member.send(embed=embedDef)
+            #                 flip = False
+            #         except:
+            #             pass
+        confirmrole = discord.Embed(
+            title = "Success!",
+            description = ":white_check_mark: Successfully reset roles",
+            colour = discord.Colour.green()
+        )
+        await message.channel.send(embed=confirmrole)
+        logger.info("Reset all roles!") 
+    except Exception as e:
+        tryerror = discord.Embed(
+            title = "Error!",
+            description = ":x: Error reseting roles.",
+            colour = discord.Colour.red()
+        )        
+        await message.channel.send(embed=tryerror)            
+        logger.error("Could not reset roles. Error: " + str(e)) 
 
 bot.run(token)
 logger.info('Bot has finished running and has ended all processes. \n')
