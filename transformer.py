@@ -47,6 +47,7 @@ object of which transformer.py is in" + str(e))
         pandascsv["Role"] = "None"
         pandascsv["DiscordID"] = "none"
         pandascsv["inServer"] = "False"
+        #data reset problem^
         studentrole = "VG"
         for row in pandascsv.index:
             try:
