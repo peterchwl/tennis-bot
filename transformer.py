@@ -2,6 +2,7 @@ import pandas as pd
 import os.path
 from os import path
 import logging
+import pathlib
 #yolo
 
 logger = logging.getLogger(__name__)
@@ -16,8 +17,11 @@ class transformer:
             dynamic_path = os.path.dirname(os.path.abspath(__file__))
         except Exception as e:
             logger.critical("Could not read_excel and/or array positional \
-error for xlsx_file[] and/or could not find the dynamic path \
-object of which transformer.py is in" + str(e))
+                            error for xlsx_file[] and/or could not find the dynamic path \
+                            object of which transformer.py is in" + str(e))\
+
+        print(pathlib.Path(csvname).absolute())
+        print(path.exists(csvname))
         if not path.exists(csvname):
             self.updatecsv()
             self.formatcsv()
@@ -48,6 +52,8 @@ object of which transformer.py is in" + str(e))
         pandascsv["Role"] = "None"
         pandascsv["DiscordID"] = "none"
         pandascsv["inServer"] = "False"
+
+
         #data reset problem^
         studentrole = "VG"
         for row in pandascsv.index:
@@ -76,3 +82,5 @@ object of which transformer.py is in" + str(e))
     
     def getCsvName(self):
         return csvname
+
+trans = transformer("CV_Tennis_Roster.xlsx")
