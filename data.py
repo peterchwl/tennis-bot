@@ -93,26 +93,26 @@ class data:
         except Exception as e:
             logger.critical("Cannot get full name. Error: " + str(e))
     
-    def combine(excel_file, csv_file):
     #returns a csv concatination of the 2 input files
-    df_csv = pd.read_csv(csv_file, index_col = "ID")
-    df_excel = []
-    roles = ["Varsity Girl", "JV Girl", "Varsity Boy", "JV Boy", "Temp"]
-    for i in range(5):
-        df_excel.append(pd.read_excel(
-            excel_file, 
-            index_col = "ID", 
-            sheet_name = i, 
-            header = None, 
-            names = ["ID", "LastName", "FirstName", "Role", "DiscordID"],
-            dtype = {
-                "Role": object,
-                "DiscordID": object
-            }
+    def combine(excel_file, csv_file):
+        df_csv = pd.read_csv(csv_file, index_col = "ID")
+        df_excel = []
+        roles = ["Varsity Girl", "JV Girl", "Varsity Boy", "JV Boy", "Temp"]
+        for i in range(5):
+            df_excel.append(pd.read_excel(
+                excel_file, 
+                index_col = "ID", 
+                sheet_name = i, 
+                header = None, 
+                names = ["ID", "LastName", "FirstName", "Role", "DiscordID"],
+                dtype = {
+                    "Role": object,
+                    "DiscordID": object
+                }
+                )
             )
-        )
-        df_excel[i]["Role"] = roles[i]
-    
-    df_excel_all = pd.concat(df_excel)
-    df_excel_all["DiscordID"] = df_csv["DiscordID"]
-    df_excel_all.to_csv(csv_file)
+            df_excel[i]["Role"] = roles[i]
+        
+        df_excel_all = pd.concat(df_excel)
+        df_excel_all["DiscordID"] = df_csv["DiscordID"]
+        df_excel_all.to_csv(csv_file)
